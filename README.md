@@ -1,6 +1,6 @@
 # XPBD_tear
 
-双语项目说明 / Bilingual project guide
+GPT-6 Astra assisted in completing the project.
 
 ## 项目简介 / Project overview
 
@@ -119,4 +119,4 @@ The test covers finite particle states, strain-driven fracture, vertex duplicati
 
 - XPBD position-based simulation of compliant constrained dynamics.pdf
 - Position Based DynamicsMuller2007109 - Matthias Müller, Bruno Heidelberger, Marcus Hennix, John Ratcliff.pdf
-- cloth-master/：独立 WebGPU 布料实现，仅作参考 / independent WebGPU cloth implementation for reference only.
+- cloth-master/：独立 WebGPU 布料实现，作为参考 / independent WebGPU cloth implementation for reference only.
