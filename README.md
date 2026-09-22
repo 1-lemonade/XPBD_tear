@@ -1,6 +1,6 @@
 # XPBD_tear
 
-GPT-6 Astra assisted in completing the project.
+GPT-6 Astra assisted in completing this project.
 
 ## 项目简介 / Project overview
 
