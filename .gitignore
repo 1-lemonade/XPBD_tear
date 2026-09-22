@@ -1,0 +1,18 @@
+# Local Python environments are reproducible from environment.yml.
+.conda-env/
+.venv/
+
+# Python bytecode and test/tool caches.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Runtime-only Matplotlib configuration created beside exported images.
+.matplotlib/
+artifacts/**/.matplotlib/
+
+# Local logs and editor metadata.
+*.log
+.vscode/
+.idea/

@@ -1,0 +1,7 @@
+{
+  "initial_components": 1,
+  "maximum_components": 56,
+  "fracture_events": 53,
+  "disconnected_components_observed": true,
+  "passed": true
+}

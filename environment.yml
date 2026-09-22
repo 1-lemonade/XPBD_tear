@@ -1,0 +1,24 @@
+name: XPBD_tear
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  # Pin the Windows/Python 3.10 scientific stack to the versions used by
+  # the headless diagnostics. Newer NumPy/Matplotlib combinations can raise
+  # a native 0xc06d007f exception while constrained_layout is drawing ticks.
+  - numpy=1.26.4
+  - matplotlib=3.8.4
+  - pip
+  - pip:
+      - taichi>=1.7.4
+      - pyrender>=0.1.45
+      - Pillow>=10
+      - PyOpenGL>=3.1
+      - freetype-py>=2.3
+      - imageio>=2.31
+      - networkx>=3.0
+      - pyglet>=2.0
+      - scipy>=1.10
+      - six>=1.16
+      - trimesh>=4.0

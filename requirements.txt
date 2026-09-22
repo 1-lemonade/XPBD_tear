@@ -1,0 +1,15 @@
+# pip-only / pip-preferred remainder for the xpbd-tear conda environment.
+taichi>=1.7.4
+# pyrender is present on conda-forge but its latest conda-forge upload is old;
+# use PyPI so its maintained dependency metadata is resolved by pip.
+pyrender>=0.1.45
+# Explicit runtime dependencies used by pyrender's offscreen path.
+Pillow>=10
+PyOpenGL>=3.1
+freetype-py>=2.3
+imageio>=2.31
+networkx>=3.0
+pyglet>=2.0
+scipy>=1.10
+six>=1.16
+trimesh>=4.0
