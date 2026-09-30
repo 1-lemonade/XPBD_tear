@@ -1,0 +1,498 @@
+"""Runnable XPBD cloth tearing demo and numerical smoke checks."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from dataclasses import dataclass
+
+import numpy as np
+
+try:
+    import taichi as ti
+except ImportError:  # pragma: no cover - gives a useful message on setup errors
+    ti = None
+
+if __package__:
+    from .cloth.constraints import ClothMaterial, XPBDSolver
+    from .cloth.failure import FailureModel, StrainThresholdFailure
+    from .cloth.mesh import TriangleMesh
+    from .cloth.particles import ParticleSoA
+    from .cloth.topology import TopologyManager
+    from .cloth.taichi_runtime import initialize_taichi
+    from .coupling.interface import NullCoupling
+    from .coupling.contracts import ClothSnapshot
+else:  # direct ``python main.py`` execution from project/
+    from cloth.constraints import ClothMaterial, XPBDSolver
+    from cloth.failure import FailureModel, StrainThresholdFailure
+    from cloth.mesh import TriangleMesh
+    from cloth.particles import ParticleSoA
+    from cloth.topology import TopologyManager
+    from cloth.taichi_runtime import initialize_taichi
+    from coupling.interface import NullCoupling
+    from coupling.contracts import ClothSnapshot
+
+
+@dataclass
+class DemoConfig:
+    width: float = 1.0
+    height: float = 1.4
+    resolution_x: int = 18
+    resolution_y: int = 25
+    dt: float = 1.0 / 60.0
+    iterations: int = 10
+    substeps: int = 8
+    critical_strain: float = 0.25
+    pull_speed: float = 0.18
+    tearing_enabled: bool = True
+    arch: str = "cpu"
+    precision: str = "f32"
+    capacity_headroom: float = 4.0
+    particle_mass: float = 1.0
+
+
+def make_grid(config: DemoConfig) -> tuple[ParticleSoA, TriangleMesh, list[int], list[int]]:
+    nx, ny = config.resolution_x, config.resolution_y
+    positions = []
+    for row in range(ny):
+        y = config.height * (1.0 - row / (ny - 1))
+        for column in range(nx):
+            x = config.width * column / (nx - 1)
+            positions.append((x, y, 0.0))
+    positions_array = np.asarray(positions, dtype=np.float64)
+    triangles = []
+    for row in range(ny - 1):
+        for column in range(nx - 1):
+            a = row * nx + column
+            b = a + 1
+            c = a + nx
+            d = c + 1
+            triangles.extend(((a, c, b), (b, c, d)))
+    if config.particle_mass <= 0.0:
+        raise ValueError("particle_mass must be positive")
+    particles = ParticleSoA(positions_array, masses=np.full(len(positions_array), config.particle_mass))
+    mesh = TriangleMesh(np.asarray(triangles, dtype=np.int64), particles.position)
+    top = list(range(nx))
+    bottom = list(range((ny - 1) * nx, ny * nx))
+    # Both prescribed boundaries are kinematic: stretch constraints must not
+    # move a handle that will be projected back to its target every substep.
+    particles.pin(top + bottom)
+    return particles, mesh, top, bottom
+
+
+class ClothSimulation:
+    def __init__(self, config: DemoConfig | None = None):
+        self.config = config or DemoConfig()
+        self.time = 0.0
+        self.pull_offset = 0.0
+        self.fracture_log: list[dict[str, float | int]] = []
+        self._epoch = 0
+        self._step_index = 0
+        self.coupling = NullCoupling()
+        self.reset()
+
+    def reset(self) -> None:
+        self.coupling.reset()
+        self.particles, self.mesh, self.top_ids, self.bottom_ids = make_grid(self.config)
+        material = ClothMaterial()
+        self.solver = XPBDSolver(
+            self.particles,
+            self.mesh,
+            material,
+            capacity_headroom=self.config.capacity_headroom,
+            arch=self.config.arch,
+            precision=self.config.precision,
+        )
+        self.top_targets = {pid: self.particles.position[pid].copy() for pid in self.top_ids}
+        self.bottom_start = {pid: self.particles.position[pid].copy() for pid in self.bottom_ids}
+        self._update_pin_constraints()
+        self.topology = TopologyManager(self.particles, self.mesh)
+        self.failure_model: FailureModel = StrainThresholdFailure(self.config.critical_strain)
+        self.coupling = NullCoupling()
+        self.time = 0.0
+        self.pull_offset = 0.0
+        self.fracture_log.clear()
+        self._epoch += 1
+        self._step_index = 0
+
+    @property
+    def epoch(self) -> int:
+        return self._epoch
+
+    @property
+    def step_index(self) -> int:
+        return self._step_index
+
+    def snapshot(self) -> ClothSnapshot:
+        """Copy a completed world state; caller must serialize with step/reset."""
+        version = self.mesh.topology_version
+        if self.solver.topology_version != version:
+            raise RuntimeError(
+                f"snapshot topology mismatch: epoch={self.epoch}, step={self.step_index}, "
+                f"solver={self.solver.topology_version}, mesh={version}"
+            )
+        p = self.particles
+        try:
+            snapshot = ClothSnapshot(
+                positions=p.position, triangles=self.mesh.triangles,
+                vertex_ids=np.arange(p.count, dtype=np.int64),
+                triangle_ids=np.arange(self.mesh.triangle_count, dtype=np.int64),
+                velocity=p.velocity, inverse_mass=p.inverse_mass, pinned=p.pinned,
+                epoch=self.epoch, step_index=self.step_index, topology_version=version,
+                time=self.time, dt=self.config.dt,
+            )
+        except ValueError as error:
+            raise ValueError(f"snapshot {(self.epoch, self.step_index, version)}: {error}") from error
+        if self.mesh.topology_version != version or self.solver.topology_version != version:
+            raise RuntimeError("topology changed during snapshot creation")
+        return snapshot
+
+    @property
+    def particle_count(self) -> int:
+        return self.particles.count
+
+    @property
+    def active_edge_count(self) -> int:
+        return sum(edge.active for edge in self.mesh.edges)
+
+    def set_failure_model(self, model: FailureModel) -> None:
+        self.failure_model = model
+
+    def update_parameters(self, stretch: float, bend: float, critical: float, substeps: int, tearing: bool) -> None:
+        stretch_value = max(0.0, float(stretch))
+        bend_value = max(0.0, float(bend))
+        material = self.solver.material
+        if (stretch_value, bend_value) != (material.stretch_compliance, material.bend_compliance):
+            material.stretch_compliance = stretch_value
+            material.bend_compliance = bend_value
+            self.solver.update_material(material)
+        self.config.critical_strain = max(0.001, float(critical))
+        self.config.substeps = max(1, int(substeps))
+        self.config.tearing_enabled = bool(tearing)
+        if isinstance(self.failure_model, StrainThresholdFailure):
+            self.failure_model.critical_strain = self.config.critical_strain
+
+    def step(self) -> None:
+        # Pull grows continuously in displacement, never as an impulse.
+        self.time += self.config.dt
+        self.pull_offset += self.config.pull_speed * self.config.dt
+        pin_targets = dict(self.top_targets)
+        for pid, start in self.bottom_start.items():
+            pin_targets[pid] = start + np.array((0.0, -self.pull_offset, 0.0))
+        self.solver.step(self.config.dt, self.config.iterations, self.config.substeps, pin_targets)
+
+        # This is deliberately outside XPBDSolver and runs only after a full
+        # substep sequence; no topology mutates inside a constraint iteration.
+        if self.config.tearing_enabled:
+            self._fracture_one_edge()
+        self._step_index += 1
+        self.coupling.exchange(self.snapshot(), self.time, self.config.dt)
+
+    def _fracture_one_edge(self) -> None:
+        candidates = []
+        for edge in self.mesh.edges:
+            if not edge.active or len(edge.adjacent_triangles) != 2:
+                continue
+            edge.current_strain = edge.strain(self.particles.position)
+            if self.failure_model.should_break(edge):
+                candidates.append((edge.current_strain, edge.id, edge))
+        if not candidates:
+            return
+        strain, edge_id, edge = max(candidates, key=lambda item: item[0])
+        split_ids = self.topology.split_vertex(edge.a, edge_id)
+        if not split_ids:
+            return
+        self.solver.rebuild_constraints()
+        # Preserve pin constraints after the topology rebuild and keep the
+        # prescribed boundary state deterministic.
+        self._update_pin_constraints()
+        self.fracture_log.append({"time": self.time, "edge": edge_id, "strain": strain})
+
+    def _update_pin_constraints(self) -> None:
+        targets = dict(self.top_targets)
+        for pid, start in self.bottom_start.items():
+            targets[pid] = start + np.array((0.0, -self.pull_offset, 0.0))
+        self.solver.set_pins(targets)
+
+    def finite(self) -> bool:
+        return bool(
+            np.isfinite(self.particles.position).all()
+            and np.isfinite(self.particles.velocity).all()
+            and np.isfinite(self.particles.predicted_position).all()
+        )
+
+    def disconnected_components(self) -> int:
+        """Count triangle components across active shared edges."""
+        if self.mesh.triangle_count == 0:
+            return 0
+        parent = list(range(self.mesh.triangle_count))
+
+        def find(x: int) -> int:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a: int, b: int) -> None:
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[rb] = ra
+
+        for edge in self.mesh.edges:
+            if edge.active and len(edge.adjacent_triangles) == 2:
+                union(edge.adjacent_triangles[0], edge.adjacent_triangles[1])
+        return len({find(i) for i in range(self.mesh.triangle_count)})
+
+    def render_data(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        positions = self.particles.position.copy()
+        x = 0.08 + positions[:, 0] / max(self.config.width, 1e-12) * 0.62
+        y = 0.10 + np.clip(positions[:, 1] / max(self.config.height + self.pull_offset, 0.1), -0.05, 1.0) * 0.80
+        vertices = np.column_stack((x, y, np.zeros(len(x))))
+        colors = np.tile(np.array([[0.15, 0.55, 0.95, 1.0]], dtype=np.float32), (len(x), 1))
+        for edge in self.mesh.edges:
+            if edge.broken:
+                colors[edge.a, :3] = (0.95, 0.18, 0.12)
+                colors[edge.b, :3] = (0.95, 0.18, 0.12)
+        return vertices.astype(np.float32), self.mesh.triangles.astype(np.int32), colors
+
+
+def run_smoke_test(
+    frames: int = 120,
+    arch: str = "cpu",
+    precision: str = "f32",
+    capacity_headroom: float = 4.0,
+) -> ClothSimulation:
+    config = DemoConfig(
+        tearing_enabled=True,
+        critical_strain=0.65,
+        substeps=8,
+        arch=arch,
+        precision=precision,
+        capacity_headroom=capacity_headroom,
+    )
+    simulation = ClothSimulation(config)
+    for _ in range(frames):
+        simulation.step()
+        if not simulation.finite():
+            raise AssertionError("cloth produced NaN or infinity")
+    if simulation.particle_count <= 0 or simulation.active_edge_count <= 0:
+        raise AssertionError("invalid cloth topology after smoke run")
+    print(
+        f"smoke ok: particles={simulation.particle_count}, "
+        f"active_edges={simulation.active_edge_count}, fractures={len(simulation.fracture_log)}, "
+        f"components={simulation.disconnected_components()}"
+    )
+    return simulation
+
+
+def run_headless_artifacts(
+    frames: int,
+    output_dir: str,
+    resolution: int,
+    critical_strain: float,
+    pull_speed: float,
+    render: bool,
+    arch: str = "cpu",
+    precision: str = "f32",
+    capacity_headroom: float = 4.0,
+    postprocess_effects: dict[str, bool] | None = None,
+) -> None:
+    """Run without Taichi windowing and write plots/topology/render artifacts."""
+    if __package__:
+        from .viz.diagnostics import DiagnosticsRecorder, write_diagnostics
+        from .viz.scene_render import render_scene
+    else:  # direct ``python main.py`` execution from project/
+        from viz.diagnostics import DiagnosticsRecorder, write_diagnostics
+        from viz.scene_render import render_scene
+
+    config = DemoConfig(
+        resolution_x=max(4, int(resolution)),
+        resolution_y=max(6, int(round(max(4, int(resolution)) * 1.4))),
+        critical_strain=float(critical_strain),
+        pull_speed=float(pull_speed),
+        arch=arch,
+        precision=precision,
+        capacity_headroom=capacity_headroom,
+    )
+    simulation = ClothSimulation(config)
+    recorder = DiagnosticsRecorder()
+    recorder.record(simulation)
+    for _ in range(max(0, int(frames))):
+        simulation.step()
+        if not simulation.finite():
+            raise AssertionError("cloth produced NaN or infinity")
+        recorder.record(simulation)
+    outputs = write_diagnostics(recorder, output_dir)
+    backend = None
+    if render:
+        backend = render_scene(
+            simulation,
+            f"{output_dir}/cloth_final.png",
+            postprocess_effects=postprocess_effects,
+        )
+    topology_check = recorder.topology_check()
+    print(f"diagnostics written to {output_dir}")
+    print(f"topology check: {topology_check}")
+    if backend:
+        print(f"scene renderer: {backend}")
+    for name, path in outputs.items():
+        print(f"{name}: {path}")
+    if not topology_check["passed"]:
+        raise AssertionError("headless diagnostics failed the topology/geometry check")
+
+
+def run_gif_demo(
+    frames: int,
+    output_path: str,
+    resolution: int,
+    critical_strain: float,
+    pull_speed: float,
+    fps: int,
+    arch: str = "cpu",
+    precision: str = "f32",
+    capacity_headroom: float = 4.0,
+) -> None:
+    """Write a short animated visualization without changing the solver."""
+    if __package__:
+        from .viz.gif_demo import write_gif
+    else:  # direct ``python main.py`` execution from project/
+        from viz.gif_demo import write_gif
+
+    resolution = max(4, int(resolution))
+    config = DemoConfig(
+        resolution_x=resolution,
+        resolution_y=max(6, int(round(resolution * 1.4))),
+        critical_strain=float(critical_strain),
+        pull_speed=float(pull_speed),
+        arch=arch,
+        precision=precision,
+        capacity_headroom=capacity_headroom,
+    )
+    simulation = ClothSimulation(config)
+    path = write_gif(simulation, output_path, frames=max(1, int(frames)), fps=max(1, int(fps)))
+    print(f"gif written: {path}")
+
+
+def run_demo(arch: str = "cpu", precision: str = "f32", capacity_headroom: float = 4.0) -> None:
+    from .viz.interactive import CanvasMesh
+
+    simulation = ClothSimulation(DemoConfig(arch=arch, precision=precision, capacity_headroom=capacity_headroom))
+    window = ti.ui.Window("XPBD Cloth Tearing Demo", (1180, 760), vsync=True)
+    canvas = window.get_canvas()
+    display_mesh = CanvasMesh()
+    paused = False
+    single_step = False
+    stretch = simulation.solver.material.stretch_compliance
+    bend = simulation.solver.material.bend_compliance
+    critical = simulation.config.critical_strain
+    substeps = simulation.config.substeps
+    tearing = simulation.config.tearing_enabled
+    resolution = simulation.config.resolution_x
+    while window.running:
+        gui = window.get_gui()
+        gui.begin("XPBD controls", 0.73, 0.03, 0.25, 0.52)
+        gui.text(f"time: {simulation.time:.2f}s")
+        gui.text(f"fractures: {len(simulation.fracture_log)}")
+        gui.text(f"particles: {simulation.particle_count}")
+        gui.text(f"components: {simulation.disconnected_components()}")
+        stretch = gui.slider_float("stretch compliance", float(stretch), 1.0e-9, 2.0e-5)
+        bend = gui.slider_float("bend compliance", float(bend), 1.0e-9, 5.0e-4)
+        critical = gui.slider_float("critical strain", float(critical), 0.05, 1.5)
+        substeps = int(gui.slider_int("substeps", int(substeps), 1, 12))
+        resolution_new = int(gui.slider_int("mesh resolution", int(resolution), 8, 30))
+        if resolution_new != resolution:
+            resolution = resolution_new
+            simulation.config.resolution_x = resolution
+            simulation.config.resolution_y = max(10, int(round(resolution * 1.4)))
+            simulation.reset()
+        if gui.button("Tearing on / off"):
+            tearing = not tearing
+        if gui.button("Pause / resume"):
+            paused = not paused
+        if gui.button("Step"):
+            single_step = True
+        if gui.button("Reset"):
+            simulation.reset()
+            paused = False
+        gui.text(f"tearing: {tearing}   paused: {paused}")
+        gui.end()
+
+        simulation.update_parameters(stretch, bend, critical, substeps, tearing)
+        if not paused or single_step:
+            simulation.step()
+            single_step = False
+        vertices, indices, colors = simulation.render_data()
+        canvas.set_background_color((0.035, 0.045, 0.075))
+        display_mesh.draw(canvas, vertices, indices, colors)
+        window.show()
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--smoke-test", action="store_true", help="run a headless numerical stability check")
+    parser.add_argument("--frames", type=int, default=120, help="smoke-test or diagnostics frame count")
+    parser.add_argument("--diagnostics", action="store_true", help="write headless matplotlib diagnostics")
+    parser.add_argument("--render-scene", action="store_true", help="write a pyrender scene or 3D fallback PNG")
+    parser.add_argument("--gif", action="store_true", help="write a short animated GIF demo")
+    parser.add_argument("--gif-output", default="artifacts/xpbd_tearing_demo.gif")
+    parser.add_argument("--gif-frames", type=int, default=120)
+    parser.add_argument("--gif-fps", type=int, default=12)
+    parser.add_argument("--output-dir", default="artifacts", help="directory for headless output")
+    parser.add_argument("--resolution", type=int, default=18, help="horizontal grid resolution for headless runs")
+    parser.add_argument("--critical-strain", type=float, default=0.25)
+    parser.add_argument("--pull-speed", type=float, default=0.18)
+    parser.add_argument("--arch", choices=("cpu", "cuda"), default="cpu", help="Taichi backend; CUDA must be available")
+    parser.add_argument("--precision", choices=("f32", "f64"), default="f32", help="floating-point precision for solver fields")
+    parser.add_argument(
+        "--capacity-headroom",
+        type=float,
+        default=4.0,
+        help="fixed field capacity multiplier for vertices and each constraint type (minimum 1.0)",
+    )
+    parser.add_argument("--post-fog", action="store_true", help="enable pyrender depth fog")
+    parser.add_argument("--post-ao", action="store_true", help="enable pyrender depth ambient-occlusion approximation")
+    parser.add_argument("--post-edges", action="store_true", help="highlight pyrender depth discontinuities")
+    parser.add_argument("--post-tonemap", action="store_true", help="enable pyrender tone mapping")
+    args = parser.parse_args(argv)
+    initialize_taichi(args.arch, args.precision)
+    postprocess_effects = {
+        "fog": args.post_fog,
+        "ao": args.post_ao,
+        "edges": args.post_edges,
+        "tonemap": args.post_tonemap,
+    }
+    render_scene = args.render_scene or any(postprocess_effects.values())
+    if args.smoke_test:
+        run_smoke_test(args.frames, args.arch, args.precision, args.capacity_headroom)
+    elif args.gif:
+        run_gif_demo(
+            args.gif_frames,
+            args.gif_output,
+            args.resolution,
+            args.critical_strain,
+            args.pull_speed,
+            args.gif_fps,
+            args.arch,
+            args.precision,
+            args.capacity_headroom,
+        )
+    elif args.diagnostics or render_scene:
+        run_headless_artifacts(
+            args.frames,
+            args.output_dir,
+            args.resolution,
+            args.critical_strain,
+            args.pull_speed,
+            render_scene,
+            args.arch,
+            args.precision,
+            args.capacity_headroom,
+            postprocess_effects,
+        )
+    else:
+        run_demo(args.arch, args.precision, args.capacity_headroom)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

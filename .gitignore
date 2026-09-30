@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.matplotlib/
+imgui.ini
+artifacts/
+.venv/
+.conda-env/
+*.log
