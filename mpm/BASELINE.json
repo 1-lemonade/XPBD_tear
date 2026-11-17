@@ -1,0 +1,12 @@
+{
+  "baseline": "fixed-motion-public-candidate-v1",
+  "package": "mpm-xpbd-fixed-motion",
+  "src_files": 53,
+  "sha256sums": "96a820dd0bfb6b555e3dcaab3db15589dfa1ea0b0e932164b43be0e733653ead",
+  "files": {
+    "run.ps1": "8a90830dcdef14d707a1414c7ef577748527f150a1d4114ded581b864cdb8062",
+    "run.sh": "1744f2d4f1ebaa153e9d30fb56714f940f49e31e395382625c98a4a40e3a7b58",
+    "environment.yml": "9c2b0b3cf6d3b1e32f595cdcbdb47b6b53573ad0f81b032a1e198e739b25d75f",
+    "RELEASE.json": "390dade1dd57a6f6810d28d6989f6bd379140d4350e6dfdba4012165ce03a525"
+  }
+}

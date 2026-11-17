@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XPBD · 撕裂与支撑诊断</title>
+<style>
+:root { color-scheme: light; --ink:#162f39; --muted:#506872; --line:#cddada; --sea:#006d67; --sand:#ad551f; }
+* { box-sizing:border-box }
+body { margin:0; background:#f1f5f4; color:var(--ink); font:15px/1.55 system-ui,"Microsoft YaHei",sans-serif }
+main { width:min(1280px,96%); margin:24px auto 56px }
+header,.toolbar,.panel-head,.controls,.legend { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px }
+header,.panel-head { justify-content:space-between }
+header { margin-bottom:16px }
+h1 { margin:0; font-size:clamp(22px,3vw,34px); letter-spacing:-.03em }
+h2,h3 { margin:0 0 8px; font-size:18px }
+h3 { font-size:15px }
+.panel-head h2 { margin:0 }
+.panel,.chart { background:white; border:1px solid var(--line); border-radius:10px; padding:16px; min-width:0 }
+.layout { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(280px,1fr); gap:12px }
+.stack { display:grid; gap:12px; align-content:start }
+.section { margin-top:12px }
+.muted,.legend,footer,small { color:var(--muted); font-size:13px }
+.legend { margin:6px 0 }
+.swatch { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px }
+button,select { background:white; color:var(--ink); font:inherit; border:1px solid #9eb4b5; padding:5px 10px; border-radius:5px }
+button { cursor:pointer }
+button:disabled { opacity:.45; cursor:default }
+#play { background:var(--sea); color:white; min-width:66px; border-color:var(--sea) }
+input { accent-color:var(--sea) }
+label { display:inline-flex; align-items:center; gap:5px }
+select { max-width:100% }
+#caseSelect { max-width:min(480px,75vw) }
+#frameSlider { width:100%; margin:10px 0 0 }
+#mesh { width:100%; height:clamp(230px,32vw,390px); display:block; margin:10px 0; background:#102a36; border-radius:5px }
+.scroll { overflow:auto }
+table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; font-size:14px }
+td,th { text-align:left; padding:5px 8px; border-bottom:1px solid #dfebea; vertical-align:top }
+th { font-weight:600; color:#405961; background:#f4f8f7 }
+td { overflow-wrap:anywhere }
+.values { font-family:ui-monospace,Consolas,monospace; white-space:nowrap }
+.active-col { background:#e7f5f0 }
+summary { cursor:pointer; font-weight:600; padding:4px 0 }
+details + details { margin-top:6px }
+pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:320px; overflow:auto; margin:6px 0; font-size:12px }
+p { margin:5px 0 }
+#charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:9px }
+.chart { padding:10px; border-radius:6px }
+.chart svg { display:block; width:100% }
+.chart p { color:var(--sea); font-variant-numeric:tabular-nums }
+.empty { color:var(--muted) }
+#error:not(:empty) { background:#fff0df; color:#812d00; padding:12px }
+footer { margin-top:12px }
+@media(max-width:760px) { .layout {grid-template-columns:1fr} main {width:95%;margin-top:12px} .panel {padding:12px} .controls {gap:6px} }
+</style>
+</head>
+<body><main>
+<header><h1>撕裂与支撑诊断</h1><label>归档案例 <select id="caseSelect"></select></label></header>
+<div id="error" role="alert"></div>
+<div class="layout"><section class="panel">
+<div class="panel-head"><h2>布面拓扑</h2><label>视角 <select id="view"><option value="oblique">斜视</option><option value="front">正视 XY</option><option value="side">侧视 ZY</option></select></label></div>
+<svg id="mesh" viewBox="0 0 640 330" role="img" aria-label="当前记录的布面三角网与稳定顶点 ID"></svg>
+<div class="legend"><span><i class="swatch" style="background:#62d7b4"></i>固定点</span><span><i class="swatch" style="background:#f89b56"></i>复制点</span><span><i class="swatch" style="background:#fbc97b"></i>已标记裂边</span><span>面色区分共享边连通分组</span></div>
+<div class="controls"><button id="first">首帧</button><button id="prev">上一帧</button><button id="play">播放</button><button id="next">下一帧</button><button id="last">末帧</button>
+<label>速度 <select id="speed"><option value="2">2 帧/秒</option><option value="6">6 帧/秒</option><option value="12">12 帧/秒</option></select></label></div>
+<input id="frameSlider" type="range" min="0" step="1" value="0" aria-label="跳转记录">
+<div class="panel-head"><strong id="recordLabel"></strong><span id="clock"></span></div>
+</section><div class="stack">
+<section class="panel"><h2>当前记录</h2><div id="recordInfo"></div><div id="eventInfo"></div></section>
+<section class="panel"><h2>拓扑与身份</h2><p id="topologySummary"></p>
+<details id="topologyDetail"><summary>查看面连通与顶点父子关系</summary><div id="topologyTables" class="scroll"></div></details></section>
+</div></div>
+<section class="panel section"><h2>物理时间曲线</h2><p class="muted">横轴为归档时间（ms）。圆点对应独立记录，灰线标记当前时刻。缺测或拓扑变化处断线。</p><div id="charts"></div></section>
+<div class="layout section"><section class="panel"><h2>支撑与动量收支</h2><p id="supportStatus"></p><div id="supportVectors" class="scroll"></div>
+<details><summary>逐支点测量</summary><div id="supportPoints" class="scroll"></div></details></section>
+<section class="panel"><h2>交换与提交</h2><div id="exchangeDetail" class="scroll"></div></section></div>
+<section class="panel section"><h2>场景与参数对照</h2><div id="parameterComparison" class="scroll"></div></section>
+<details class="panel section"><summary>归档来源</summary><pre id="source"></pre></details>
+<footer>离线只读回放。播放速度按记录数设置，同一物理时刻可逐条查看。</footer>
+</main>
+<script id="reviewData" type="application/json">@@DATA@@</script>
+<script>
+"use strict";
+try {
+  const byId = id => document.getElementById(id);
+  const cases = JSON.parse(byId("reviewData").textContent).cases;
+  const frameSlider = byId("frameSlider");
+  const palette = ["#346d80","#925f45","#70618b","#497866","#486196"];
+  const stages = {initial:"初始",post_solve:"求解后",post_tear:"撕裂后"};
+  let currentCase, frames, recordIndex, timer = null, bounds;
+
+  function number(value) {
+    if (Number.isSafeInteger(value)) return String(value);
+    return Number.isFinite(value) ? String(Number(value.toPrecision(7))) : "未记录";
+  }
+  function valueText(value) {
+    if (value == null) return "未记录";
+    if (typeof value === "number") return number(value);
+    if (Array.isArray(value)) return "[" + value.map(valueText).join(", ") + "]";
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  }
+  function element(tag, text) {
+    const node = document.createElement(tag);
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function svg(tag, attrs, text) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg",tag);
+    for (const [key,value] of Object.entries(attrs)) node.setAttribute(key,String(value));
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function table(headers,rows,activeColumn=-1) {
+    const grid = element("table");
+    function addRow(parent,cells,tag) {
+      const row = element("tr");
+      cells.forEach((value,i) => {
+        const cell = element(tag,valueText(value));
+        if (i === activeColumn) cell.className = "active-col";
+        row.append(cell);
+      });
+      parent.append(row);
+    }
+    if (headers) addRow(grid.createTHead(),headers,"th");
+    const body = grid.createTBody();
+    for (const cells of rows) addRow(body,cells,"td");
+    return grid;
+  }
+  function project([x,y,z]) {
+    if (byId("view").value === "front") return [x,y,z];
+    if (byId("view").value === "side") return [z,y,-x];
+    return [0.94*x+0.342*z, 0.984*y-0.18*(0.94*z-0.342*x), 0.984*(0.94*z-0.342*x)+0.18*y];
+  }
+  function updateBounds() {
+    let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+    for (const frame of frames) for (const position of frame.positions) {
+      const [x,y] = project(position);
+      x0=Math.min(x,x0); x1=Math.max(x,x1); y0=Math.min(y,y0); y1=Math.max(y,y1);
+    }
+    bounds = {x:(x0+x1)/2, y:(y0+y1)/2, scale:Math.min(540/Math.max(x1-x0,1e-12),253/Math.max(y1-y0,1e-12))};
+  }
+  function drawMesh(f) {
+    const scene = byId("mesh");
+    const points = f.positions.map(position => {
+      const [x,y,z] = project(position);
+      return [320+(x-bounds.x)*bounds.scale,164-(y-bounds.y)*bounds.scale,z];
+    });
+    const groups = new Map();
+    f.components.forEach((ids,i) => ids.forEach(id=>groups.set(id,i)));
+    const faces = f.triangles.map((indices,i)=>({
+      id:f.triangle_ids[i], indices, depth:indices.reduce((sum,j)=>sum+points[j][2],0)
+    })).sort((a,b)=>a.depth-b.depth);
+    scene.replaceChildren();
+    for (const face of faces) {
+      const coords = face.indices.map(j=>points[j].slice(0,2).join(",")).join(" ");
+      const polygon = svg("polygon",{points:coords,fill:palette[(groups.get(face.id) ?? 0)%palette.length],stroke:"#c1e3e3","stroke-width":1.5,"data-triangle-id":face.id});
+      polygon.append(svg("title",{},"面 "+face.id+" · 顶点 "+face.indices.map(j=>f.vertex_ids[j]).join(", ")));
+      scene.append(polygon);
+    }
+    const cuts=f.cut_edges ?? f.edge_vertex_ids.filter((_,i)=>f.edge_broken[i]);
+    const byVertex=new Map(f.vertex_ids.map((id,i)=>[id,points[i]]));
+    for (const [a,b] of cuts) {
+      const p=byVertex.get(a), q=byVertex.get(b);
+      if (p && q) scene.append(svg("line",{x1:p[0],y1:p[1],x2:q[0],y2:q[1],stroke:"#fbc97b","stroke-width":3,"data-cut-edge":a+","+b}));
+    }
+    // Coincident parent and child IDs remain visible as one joined label.
+    const labels = new Map();
+    points.forEach(([x,y],i)=>{
+      const hasParent = f.parent_vertex_ids[i] != null;
+      scene.append(svg("circle",{cx:x,cy:y,r:hasParent?5:3.4,fill:hasParent?"#f89b56":f.pinned[i]?"#62d7b4":"#e5eef2","data-vertex-id":f.vertex_ids[i]}));
+      const key = Math.round(x/4)+","+Math.round(y/4);
+      if (!labels.has(key)) labels.set(key,{x,y,ids:[]});
+      labels.get(key).ids.push(f.vertex_ids[i]);
+    });
+    for (const {x,y,ids} of labels.values()) scene.append(svg("text",{x:x+5,y:y-7,fill:"white","font-size":13,"paint-order":"stroke",stroke:"#193342","stroke-width":3},ids.join("/")));
+  }
+  function showTopology(f) {
+    byId("topologySummary").textContent = f.vertex_ids.length+" 个顶点 · "+f.triangle_ids.length+" 个面 · "+f.components.length+" 个共享边连通分组";
+    const children = f.vertex_ids.map((id,i)=>[id,f.parent_vertex_ids[i] ?? "—",f.root_vertex_ids[i],f.pinned[i]?"是":"否"]);
+    const faces = f.triangles.map((indices,i)=>[f.triangle_ids[i],indices.map(j=>f.vertex_ids[j])]);
+    byId("topologyTables").replaceChildren(
+      table(["分组","稳定面 ID"],f.components.map((ids,i)=>[i+1,ids])),
+      table(["面 ID","稳定顶点 ID"],faces),
+      table(["顶点 ID","直接父 ID","根 ID","固定"],children));
+  }
+  function showEvent(f) {
+    const node = byId("eventInfo");
+    node.replaceChildren();
+    if (f.event) {
+      const e = f.event;
+      node.append(element("h3","拓扑事件"),table(null,[
+        ["类型",e.kind],["事件前 → 后版本",valueText(e.before_version)+" → "+valueText(e.after_version)],
+        ["切边顶点 ID",e.cut_vertex_ids],["复制点 ← 直接父 ID",valueText(e.new_vertex_ids)+" ← "+valueText(e.parent_vertex_ids)]
+      ]));
+    }
+    for (const [name,value] of [["事件归档字段",f.event],["断裂判定",f.fracture_decision]]) {
+      if (value==null) continue;
+      const details = element("details");
+      details.append(element("summary",name),element("pre",JSON.stringify(value,null,2)));
+      node.append(details);
+    }
+  }
+  const norm = vector => Array.isArray(vector) && vector.length===3 && vector.every(Number.isFinite) ? Math.hypot(...vector) : null;
+  const metrics = [
+    ["max_displacement_m","最大位移","m",f=>f.max_displacement_m],
+    ["bend_energy_J","弯曲能量","J",f=>f.bend_energy_J],
+    ["cumulative_input_impulse_norm_Ns","累计输入冲量范数","N·s",f=>f.cumulative_input_impulse_norm_Ns],
+    ["mean_support_force","平均支撑力范数","N",f=>norm(f.support?.mean_support_force)],
+    ["linear_residual","线动量残差范数","N·s",f=>norm(f.support?.linear_residual)],
+    ["angular_residual_corrected","修正角动量残差范数","N·m·s",f=>norm(f.support?.angular_residual_corrected)]
+  ];
+  function drawChart([key,name,unit,read]) {
+    const values = frames.map(read);
+    const measured = values.filter(Number.isFinite);
+    const box = element("article");
+    box.className="chart"; box.dataset.field=key;
+    box.append(element("h3",name+" ["+unit+"]"),element("p",Number.isFinite(values[recordIndex])?number(values[recordIndex])+" "+unit:"本记录未测量或未提供"));
+    if (!measured.length) { box.append(element("small","本案例无此曲线")); return box; }
+    const chart = svg("svg",{viewBox:"0 0 320 145",role:"img","aria-label":name+"随物理时间变化"});
+    const t0=frames[0].time, t1=frames[frames.length-1].time;
+    const x = t=>62+245*(t-t0)/(t1-t0 || 1);
+    const high=Math.max(...measured), low=Math.min(0,...measured);
+    const y = v=>111-94*(v-low)/(high-low || 1);
+    for (const tick of new Set([low,high])) {
+      chart.append(svg("line",{x1:62,x2:307,y1:y(tick),y2:y(tick),stroke:"#d8e1e1"}));
+      chart.append(svg("text",{x:58,y:y(tick)+3,"text-anchor":"end","font-size":10,fill:"#506872"},String(Number(tick.toPrecision(3)))));
+    }
+    chart.append(svg("text",{x:62,y:135,"font-size":11},number(1000*t0)+" ms"));
+    if (t1!==t0) chart.append(svg("text",{x:307,y:135,"font-size":11,"text-anchor":"end"},number(1000*t1)+" ms"));
+    const cursor=x(frames[recordIndex].time);
+    chart.append(svg("line",{x1:cursor,x2:cursor,y1:10,y2:116,stroke:"#8d9fa3","stroke-dasharray":"3 3"}));
+    const dots=[];
+    values.forEach((v,i)=>{
+      if (!Number.isFinite(v)) return;
+      const f=frames[i], prev=frames[i-1], cx=x(f.time),cy=y(v);
+      if (prev && Number.isFinite(values[i-1]) && prev.version[0]===f.version[0] && prev.version[2]===f.version[2]) {
+        chart.append(svg("line",{x1:x(prev.time),x2:cx,y1:y(values[i-1]),y2:cy,stroke:"#08786e","stroke-width":1.7,"data-from":prev.index,"data-to":f.index}));
+      }
+      const dot=svg("circle",{cx,cy,r:3,fill:"#08786e","data-record":f.index});
+      dot.append(svg("title",{},"记录 "+f.index+" · "+number(f.time*1000)+" ms · "+number(v)+" "+unit));
+      dots.push(dot);
+    });
+    chart.append(...dots);
+    if (Number.isFinite(values[recordIndex])) chart.append(svg("circle",{cx:cursor,cy:y(values[recordIndex]),r:5.4,fill:"none",stroke:"#ad551f","stroke-width":2}));
+    box.append(chart);
+    return box;
+  }
+  function showSupport(f) {
+    const support = f.support;
+    byId("supportStatus").textContent = support ? "实测窗口 "+number(support.t_start*1000)+"–"+number(support.t_end*1000)+" ms · h = "+number(support.h*1000)+" ms" : "本条记录无支撑测量";
+    const vectors=byId("supportVectors"), points=byId("supportPoints");
+    vectors.replaceChildren(); points.replaceChildren();
+    if (support) {
+      const fields=[
+        ["布面输入冲量","J_load","N·s"],["重力冲量","J_gravity","N·s"],["支撑冲量","J_support","N·s"],["平均支撑力","mean_support_force","N"],
+        ["输入角冲量","K_load","N·m·s"],["支撑角冲量","K_support","N·m·s"],
+        ["线动量残差","linear_residual","N·s"],["角动量原始残差","angular_residual_raw","N·m·s"],
+        ["角动量修正残差","angular_residual_corrected","N·m·s"],["窗前线动量","P_before","N·s"],
+        ["窗后线动量","P_after","N·s"],["窗前角动量","L_before","N·m·s"],["窗后角动量","L_after","N·m·s"],
+        ["角动量原点","origin","m"]
+      ];
+      vectors.append(table(["归档量","世界坐标 (x, y, z)"],fields.map(([name,key,unit])=>[name+" · "+key+" ["+unit+"]",support[key]])));
+      const details=element("details");
+      details.append(element("summary","全部收支分项"),element("pre",JSON.stringify(support,null,2)));
+      vectors.append(details);
+    }
+    if (f.support_points == null) points.textContent="本条记录无逐支点测量";
+    else points.append(table(["顶点 ID","位置 [m]","支撑冲量 [N·s]","角冲量 [N·m·s]","平均力 [N]"],
+      f.support_points.map(p=>[p.vertex_id,p.position,p.J_support,p.K_support,p.mean_support_force])));
+  }
+  function showExchange(f) {
+    const node=byId("exchangeDetail"), e=f.exchange;
+    if (!e) { node.textContent=currentCase.kind==="exchange"?"初始快照，尚无窗口消息":"本案例无交换窗口"; return; }
+    node.replaceChildren(table(null,[
+      ["窗口 / 批次",valueText(e.window_index)+" / "+valueText(e.batch_id)],
+      ["当前快照",e.is_committed?"已提交":"求解后，尚待提交"],
+      ["窗长 h [s]",e.h],["材料子步 [s] × 次数",valueText(e.particle_dt)+" × "+valueText(e.substeps)],
+      ["起始版本",e.start_version],["求解版本",e.solved_version],["窗口最终提交版本",e.committed_version],
+      ["材料对布冲量 G [N·s]",e.G],["合成对端冲量 [N·s]",e.peer_impulse]
+    ]));
+    if (f.stage==="post_tear") node.append(element("p","同刻提交仅更新拓扑。该窗的 G 与对端冲量已在前一条求解记录入账，本条没有新增冲量。"));
+    const details=element("details");
+    details.append(element("summary","窗口消息字段"),element("pre",JSON.stringify(e,null,2)));
+    node.append(details);
+  }
+  function compareParameters(index) {
+    const keys = new Set(cases.flatMap(c=>Object.keys(c.parameters)));
+    const rows = Array.from(keys,key=>[key,...cases.map(c=>c.parameters[key])]);
+    byId("parameterComparison").replaceChildren(table(["参数",...cases.map(c=>c.label)],rows,index+1));
+  }
+  function render() {
+    const f=frames[recordIndex];
+    frameSlider.value=String(recordIndex);
+    document.body.dataset.record=String(f.index); document.body.dataset.stage=f.stage;
+    byId("recordLabel").textContent="记录 "+(recordIndex+1)+" / "+frames.length+" · 归档 #"+f.index;
+    byId("clock").textContent="t = "+number(f.time*1000)+" ms";
+    byId("first").disabled=byId("prev").disabled=recordIndex===0;
+    byId("last").disabled=byId("next").disabled=recordIndex===frames.length-1;
+    byId("play").disabled=frames.length<2;
+    byId("recordInfo").replaceChildren(table(null,[
+      ["阶段",(stages[f.stage] || f.stage)+" · "+f.stage],["版本 [epoch, 步, 拓扑]",f.version],
+      ["物理时间 [s]",f.time],
+      [currentCase.kind==="cloth" ? "归档步长 h [s]" :
+        f.stage==="initial" ? "起始快照 dt [s]" : "所属交换窗 h [s]",f.h],
+      ...(f.stage==="post_tear"?[["拓扑事件耗时 Δt [s]","0（与前一求解记录同刻）"]]:[])
+    ]));
+    showEvent(f); drawMesh(f); showTopology(f); showSupport(f); showExchange(f);
+    byId("charts").replaceChildren(...metrics.map(drawChart));
+  }
+  function pause() {
+    clearInterval(timer); timer=null; byId("play").textContent="播放";
+  }
+  function seek(i) { pause(); recordIndex=Math.min(frames.length-1,Math.max(0,i)); render(); }
+  function play() {
+    if (timer!==null) { pause(); return; }
+    if (recordIndex===frames.length-1) seek(0);
+    byId("play").textContent="暂停";
+    timer=setInterval(()=>{
+      recordIndex++; render();
+      if (recordIndex===frames.length-1) pause();
+    },1000/Number(byId("speed").value));
+  }
+  function chooseCase(index) {
+    pause(); currentCase=cases[index]; frames=currentCase.frames;
+    document.body.dataset.case=String(index); frameSlider.max=String(frames.length-1);
+    byId("source").textContent=JSON.stringify({
+      archive_schema:currentCase.archive_schema,stream_id:currentCase.stream_id,source_files:currentCase.source_files
+    },null,2);
+    updateBounds(); compareParameters(index); seek(0);
+  }
+  cases.forEach((c,i)=>byId("caseSelect").append(new Option(c.label,String(i))));
+  byId("caseSelect").onchange=e=>chooseCase(Number(e.target.value));
+  byId("first").onclick=()=>seek(0); byId("prev").onclick=()=>seek(recordIndex-1);
+  byId("next").onclick=()=>seek(recordIndex+1); byId("last").onclick=()=>seek(frames.length-1);
+  frameSlider.oninput=e=>seek(Number(e.target.value)); byId("play").onclick=play;
+  byId("speed").onchange=()=>{if(timer!==null){pause();play();}};
+  byId("view").onchange=()=>{updateBounds();drawMesh(frames[recordIndex]);};
+  chooseCase(0);
+} catch (error) { document.getElementById("error").textContent="无法显示归档："+error.message; }
+</script></body></html>

@@ -1,0 +1,232 @@
+{
+  "baseline": "fixed-motion-public-candidate-v1",
+  "unit": "fixed-motion-six-case",
+  "package": "mpm-xpbd-fixed-motion",
+  "purpose": "Fixed and uniformly translating prescribed cloth coupled to real MPM; no free-cloth dynamics.",
+  "scene": "scenes/coupled_u13.py",
+  "config": "scenes/configs/coupled_u4.json",
+  "arch": "cpu",
+  "precision": "f64",
+  "budgets": {
+    "package_wall_s": 3600,
+    "step_wall_s": 900,
+    "memory_bytes": 4294967296,
+    "memory_poll_s": 0.5,
+    "per_message": "scene.transport.timeouts of the configuration: hello 120, register 120, open 30, peer 30, impulse 30, send 30, stop 5 s; service idle watchdog 300 s (bounds MPM's time per window)",
+    "memory_monitor": "measured or stop: a sample that fails or counts no running process ends the step (exit 5); pre-flight before any heavy step: a probe and its child holding 32 + 128 MiB must both be counted (>= 2 processes, >= 128 MiB), else exit 4; Windows process walk: only FALSE from Process32NextW with ERROR_NO_MORE_FILES ends it, any other failure or a walk without the running step process is a monitor failure"
+  },
+  "tests": [
+    "tests/test_adapter.py",
+    "tests/test_u4_prefix.py",
+    "tests/test_u4_joint.py"
+  ],
+  "tiers": {
+    "n24": {
+      "threads": 1,
+      "sets": [
+        "grid.n=24",
+        "scene.block.size=[0.3,0.0625,0.3]",
+        "scene.windows_per_frame=1"
+      ],
+      "note": "Single-thread 24-grid contact cases."
+    },
+    "n64": {
+      "threads": 0,
+      "sets": [
+        "scene.windows_per_frame=10"
+      ],
+      "note": "64-grid block, default thread count."
+    }
+  },
+  "cases": [
+    {
+      "name": "n24_fixed_30",
+      "tier": "n24",
+      "windows": 30,
+      "velocity_world": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sets": [],
+      "what": "fixed sheet, sand resting on it (U2 E1 geometry)",
+      "gates": {
+        "sumGy_negative_windows": [
+          0,
+          30
+        ]
+      }
+    },
+    {
+      "name": "n24_drop_150",
+      "tier": "n24",
+      "windows": 150,
+      "velocity_world": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sets": [
+        "scene.block.bottom_gap=0.05"
+      ],
+      "what": "fixed sheet, block 5 cm above it: separation then contact (U2 E2)",
+      "gates": {
+        "onset_range": [
+          55,
+          90
+        ],
+        "sumGy_after_onset_negative": true
+      }
+    },
+    {
+      "name": "n24_down_150",
+      "tier": "n24",
+      "windows": 150,
+      "velocity_world": [
+        0.0,
+        -0.3,
+        0.0
+      ],
+      "sets": [],
+      "what": "sheet moving down at 0.3 m/s under resting sand: contact, separation, contact again (U2 E3)",
+      "gates": {
+        "load_ratio_absmax": {
+          "windows": [
+            3,
+            16
+          ],
+          "max": 0.01
+        },
+        "load_ratio_mean": {
+          "windows": [
+            100,
+            150
+          ],
+          "range": [
+            0.5,
+            1.5
+          ]
+        }
+      }
+    },
+    {
+      "name": "n24_translate_300",
+      "tier": "n24",
+      "windows": 300,
+      "velocity_world": [
+        0.2,
+        0.0,
+        0.0
+      ],
+      "sets": [
+        "contact.mu=0.8"
+      ],
+      "what": "sheet translating at (0.2, 0, 0) m/s, mu 0.8, drags the layer (U2 E4)",
+      "gates": {
+        "sumGx_total_negative": true,
+        "vx_mean": {
+          "windows": [
+            150,
+            300
+          ],
+          "range": [
+            0.17,
+            0.23
+          ]
+        },
+        "load_ratio_mean": {
+          "windows": [
+            150,
+            300
+          ],
+          "range": [
+            0.8,
+            1.2
+          ]
+        }
+      }
+    },
+    {
+      "name": "n64_fixed_30",
+      "tier": "n64",
+      "windows": 30,
+      "velocity_world": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sets": [],
+      "what": "fixed sheet, P1 F3 block resting on it",
+      "gates": {
+        "sumGy_negative_windows": [
+          0,
+          30
+        ],
+        "load_ratio_mean": {
+          "windows": [
+            20,
+            30
+          ],
+          "range": [
+            0.5,
+            1.5
+          ]
+        }
+      }
+    },
+    {
+      "name": "n64_translate_300",
+      "tier": "n64",
+      "windows": 300,
+      "velocity_world": [
+        0.2,
+        0.0,
+        0.0
+      ],
+      "sets": [
+        "contact.mu=0.8"
+      ],
+      "what": "sheet translating at (0.2, 0, 0) m/s, mu 0.8, under the P1 F3 block",
+      "gates": {
+        "sumGx_total_negative": true,
+        "vx_mean": {
+          "windows": [
+            150,
+            300
+          ],
+          "range": [
+            0.0,
+            0.23
+          ],
+          "low_exclusive": true
+        },
+        "load_ratio_mean": {
+          "windows": [
+            150,
+            300
+          ],
+          "range": [
+            0.8,
+            1.2
+          ]
+        }
+      }
+    }
+  ],
+  "lock": "Exact source and package digest inventory, checked before every step; this is a new candidate, not the original baseline.",
+  "common_gates": {
+    "run_status": "scene exit 0, status ok, every requested window acknowledged",
+    "xpbd_clean_stop": "the service answered STOP with BYE, exit code 0, not terminated, no late frames",
+    "reconcile": "coupling.driver.reconcile row by row: consistent, no extra XPBD window, log_condition final, XPBD committed = windows, final reason STOP",
+    "archive": "coupling.archive.verify: complete, every window acknowledged, the code digest matches the package sources, the run anchor (config.json, run_info.json) matches",
+    "replay_transport": "path A (the archive's sealed inputs through the transport into a fresh service process): registration digest, every offer digest and every receipt digest equal to the run's; first snapshot equal to snapshot0; clean stop",
+    "replay_offline": "path B (the same inputs consumed by the same XPBD adapter in one process): receipt digests equal to the run's, canonical receipt bytes equal to path A's, all 12 fields of every committed snapshot equal to path A's",
+    "provenance": "all five pinned XPBD files at their SHA-256 on disk (inputs.json) and every pinned file the service imported (HELLO; the four core files among them), no taichi / mpm in the service, no fault injection, no bytecode, Python and NumPy of the service = the MPM registration's, service pid != MPM pid; source kind real_backend; stream u4-*; registration digest equal in the endpoint, BOUND and both replays",
+    "u13_boundary": "every receipt (path B; byte-equal to the run's), each key present: kinematic true, free_dof_count 0, motion fixed / uniform_constant_translation as the case, load_received true, load_applied_to_geometry false, support_balance null, drive_work null, reaction_measurement not_measured; start_version and committed_version keep the initial topology_version",
+    "u13_motion": "the run's transform matches the fixed example R/c/C, status fixed-transform-v1, and contains no personal signoff; every snapshot (path B, the opening one and each committed one): epoch constant, topology_version = the initial one of the snapshot spec, step_index = k, velocity = R^T v_world on every vertex exactly, |X_k - X_0 - k h v| <= 1e-12 m, |time_k - k h| <= 1e-12 s, dt = h",
+    "impulse_frame": "archive coordinate frame world (XPBD native), units SI; per window the world and native batch sums map by R (world x = native x, world y = native z, world z = -native y) and equal the archive's batch sums, each component to 1e-12 of the window's impulse magnitude |sum G| (the sums differ only in reduction order)",
+    "mpm_balance": "frame balance bal_rel max <= 1e-10 (stop rule S7)"
+  },
+  "tests_expected": 60,
+  "tests_gate": "exit 0, junit readable, no failure / error / skip, exactly tests_expected tests; otherwise stop before the joint cases (exit 3), keeping logs/tests.log, tests/junit.xml and tests/tmp/ (failed tests' temporary directories); a test running longer than 240 s writes the stacks of all threads into logs/tests.log (pytest faulthandler_timeout, diagnosis only)"
+}

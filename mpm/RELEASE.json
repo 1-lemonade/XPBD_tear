@@ -1,0 +1,15 @@
+{
+  "identity": "fixed-motion-public-candidate-v1",
+  "status": "local candidate; not published; six-case matrix not rerun",
+  "license": "not selected; release blocked pending owner decision",
+  "scope": "prescribed fixed/uniform-translation geometry, not free-cloth bidirectional dynamics",
+  "changes": [
+    "internal process references removed",
+    "portable data/default paths",
+    "new digest inventory; not original baseline"
+  ],
+  "runtime_outputs": "Contain local paths, process and environment metadata; not included. Review separately before sharing.",
+  "remaining_review": "No personal signature asserted. New fixed-transform-v1 contract; source/code publication and licenses remain owner decisions.",
+  "contract": "Single fixed-transform-v1 predicate checks R/c/C and marker, with no personal-signoff field. It runs before any physical step and again in the motion result gate. This is not approval of another transform.",
+  "focused_regression": "python -B src/tests/test_public_candidate.py"
+}

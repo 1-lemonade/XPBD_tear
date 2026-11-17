@@ -1,0 +1,26 @@
+# MPM_Couple 唯一 Conda 环境（2026-10-31 建立）。
+# 与 ../XPBD_tear/work_place/environment.yml 对齐 Python/NumPy/Matplotlib/Taichi 版本，
+# 并包含其 pip 补充依赖，以便后续耦合在同一解释器中导入两侧代码。
+# 只用 conda-forge（不使用需另行接受条款的 Anaconda defaults 频道）。
+name: MPM_couple
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy=1.26.4
+  - matplotlib=3.8.4
+  - pytest
+  - pip
+  - pip:
+      - taichi==1.7.4
+      # 以下与 XPBD_tear 的 pip 补充一致（渲染/后处理），MPM 本身不依赖
+      - pyrender>=0.1.45
+      - Pillow>=10
+      - PyOpenGL>=3.1
+      - freetype-py>=2.3
+      - imageio>=2.31
+      - networkx>=3.0
+      - pyglet>=2.0
+      - scipy>=1.10
+      - six>=1.16
+      - trimesh>=4.0

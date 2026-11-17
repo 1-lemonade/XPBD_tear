@@ -1,0 +1,48 @@
+MPM + XPBD fixed-motion candidate
+
+This is a new local candidate, not the original byte-identical baseline.
+Only prescribed fixed/uniformly translating cloth is supported here; no free-cloth
+bidirectional dynamics, tearing or new material calibration is claimed.
+Licensing remains undecided. Do not publish until the owner resolves it.
+
+Environment (reuse an existing MPM_couple environment when available):
+  conda env create -f mpm/environment.yml
+
+From this candidate directory, use the standard Conda launcher (required for the
+Windows scientific-library DLL environment):
+  conda run --no-capture-output -n MPM_couple python -B mpm/src/tools/u4_joint.py --results ../mpm-results
+
+Alternatively, run the portable wrappers:
+  PowerShell: ./mpm/run.ps1 --results ../mpm-results
+  Bash: bash mpm/run.sh --results ../mpm-results
+
+The defaults locate project/ and mpm/data/ relative to the package, not a developer
+workspace. --xpbd-root and --mesh-dir remain available. Do not use --publish when
+only reproducing locally. The optional publication command copies local run data;
+it is not a GitHub upload, and its outputs require a separate privacy review.
+
+The full command runs the 60-test safety gate and six CPU f64 cases (960 windows).
+It has not been run as a six-case matrix for this new candidate. Budget: up to
+15 minutes per subprocess, 60 minutes overall, 4 GiB measured process-tree memory.
+The runner stops rather than silently skipping failed checks or raising budgets.
+A shortened --rehearse-windows run is diagnostic only, never full acceptance.
+
+fixed-transform-v1 identifies the numerical R/c/C example, not a personal signature
+or permission for a changed transform. Schema defaults such as user_signoff=pending
+mean no new approval. The new check validates R/c/C and rejects a personal signoff
+field in the public scene configuration. Numerical gates and failure checks remain.
+
+Outputs contain local paths, Python/runtime information and process IDs. Keep them
+outside this source candidate and review them before sharing. Do not bundle the
+adjacent evidence directory, recovery copies or development Git history.
+
+Focused public-candidate regression (standard library; no physical simulation):
+  python -B mpm/src/tests/test_public_candidate.py
+
+The runner validates the locked package scene's R/c/C and public-contract marker
+in its input phase, before process monitoring, smoke tests or physical steps. Missing,
+malformed or outside-package configuration fails closed. The post-run motion result
+gate also uses the same predicate. Predicate tests are not a physical replay.
+
+The project-namespace check verifies imported source location and digests. It is not
+a general-purpose sandbox, cryptographic authentication or an external attestation.

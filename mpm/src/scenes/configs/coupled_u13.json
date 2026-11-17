@@ -1,0 +1,165 @@
+{
+  "scene": {
+    "name": "coupled_u13",
+    "block": {
+      "center_xz": [
+        0.5,
+        0.5
+      ],
+      "size": [
+        0.4,
+        0.1,
+        0.4
+      ],
+      "bottom_gap": 0.0
+    },
+    "windows": 30,
+    "H_ns": 1000000,
+    "windows_per_frame": 10,
+    "seed": 0,
+    "export_frames": true,
+    "vmax_hint": 1.0,
+    "sheet_velocity": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "stop": {},
+    "stream_id": null,
+    "xpbd": {
+      "root": null,
+      "expected_sha256": null,
+      "snapshot": {
+        "mesh": "file",
+        "mesh_path": null,
+        "mesh_sha256": null,
+        "manifest_sha256": null,
+        "epoch": 1,
+        "topology_version": null,
+        "previous_dt": null
+      }
+    },
+    "transport": {
+      "timeouts": {
+        "hello": 120.0,
+        "register": 120.0,
+        "open": 30.0,
+        "peer": 30.0,
+        "impulse": 30.0,
+        "send": 30.0,
+        "stop": 5.0,
+        "idle": 300.0
+      },
+      "max_frame_bytes": 16777216
+    }
+  },
+  "precision": "f64",
+  "runtime": {
+    "cpu_threads": 3
+  },
+  "grid": {
+    "domain": 1.0,
+    "n": 64,
+    "buffer_cells": 3,
+    "active_box": true
+  },
+  "time": {
+    "dt": 0.0002,
+    "cfl_limit": 0.3
+  },
+  "gravity": [
+    0.0,
+    -9.81,
+    0.0
+  ],
+  "particles": {
+    "ppc": 8
+  },
+  "transfer": {
+    "scheme": "mls_apic_quadratic",
+    "tau_cache": true
+  },
+  "constitutive": {
+    "model": "dp_sand",
+    "options": {
+      "volume_correction": true
+    },
+    "materials": [
+      {
+        "name": "sand_dp_phi30",
+        "E": 353700.0,
+        "nu": 0.3,
+        "rho": 2200.0,
+        "h0": 30.0,
+        "h1": 0.0,
+        "h2": 0.2,
+        "h3": 0.0,
+        "sigma_min": 0.0001
+      }
+    ]
+  },
+  "boundaries": [
+    {
+      "type": "wall",
+      "axis": "y",
+      "side": "lo",
+      "friction": "coulomb",
+      "mu": 0.5
+    },
+    {
+      "type": "wall",
+      "axis": "x",
+      "side": "lo",
+      "friction": "slip"
+    },
+    {
+      "type": "wall",
+      "axis": "x",
+      "side": "hi",
+      "friction": "slip"
+    },
+    {
+      "type": "wall",
+      "axis": "y",
+      "side": "hi",
+      "friction": "slip"
+    },
+    {
+      "type": "wall",
+      "axis": "z",
+      "side": "lo",
+      "friction": "slip"
+    },
+    {
+      "type": "wall",
+      "axis": "z",
+      "side": "hi",
+      "friction": "slip"
+    }
+  ],
+  "contact": {
+    "surface": {
+      "type": "live",
+      "capacity": {
+        "vertices": 2704,
+        "triangles": 5202
+      },
+      "transform": null
+    },
+    "exchange_substeps": 5,
+    "side": "winding",
+    "correction": "C",
+    "alpha": 1.0,
+    "mu": 0.5,
+    "kappa": 0.01,
+    "push_vmax": 0.1,
+    "c_r": 0.5,
+    "c_d": 1.0,
+    "beta_dhat": 3.0,
+    "c_q": 2.0,
+    "bin_cells": 2,
+    "cand_capacity": null,
+    "bin_capacity": null,
+    "tie_tol": null
+  }
+}

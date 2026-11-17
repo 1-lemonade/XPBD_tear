@@ -1,0 +1,1649 @@
+{
+  "schema": "xpbd-u3-host-contract-vectors-v1",
+  "scope": "self-declared 4-vertex fixtures; not real MPM evidence, mesh52 or transport testing",
+  "h": 0.001,
+  "particle_dt": 0.0002,
+  "H_ns": 1000000,
+  "registration": {
+    "value": {
+      "schema": "mpm-endpoint-registration-v1",
+      "source": {
+        "source_id": "mpm-couple.test",
+        "kind": "real_backend",
+        "version": 2913825255
+      },
+      "code_digest": "adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44",
+      "code_files": {
+        "mpm/a.py": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "coupling/b.py": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "config_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "mpm_run_id": "fixture-not-a-real-MPM-run",
+      "mpm_epoch": 1,
+      "window": {
+        "dt": 0.0002,
+        "n_sub": 5,
+        "H_ns": 1000000
+      },
+      "peer": null,
+      "runtime": {
+        "python": "test",
+        "nested": [
+          "unverified"
+        ]
+      },
+      "evidence": "fixture",
+      "extra": {
+        "authenticated": true,
+        "nested": [
+          1,
+          2
+        ]
+      }
+    },
+    "canonical_json": "{\"code_digest\":\"adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44\",\"code_files\":{\"coupling/b.py\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"mpm/a.py\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"config_digest\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"evidence\":\"fixture\",\"extra\":{\"authenticated\":true,\"nested\":[1,2]},\"mpm_epoch\":1,\"mpm_run_id\":\"fixture-not-a-real-MPM-run\",\"peer\":null,\"runtime\":{\"nested\":[\"unverified\"],\"python\":\"test\"},\"schema\":\"mpm-endpoint-registration-v1\",\"source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"window\":{\"H_ns\":1000000,\"dt\":0.0002,\"n_sub\":5}}",
+    "sha256": "52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c"
+  },
+  "cases": [
+    {
+      "name": "fixed",
+      "stream_id": "u3-self-declared-fixture-fixed",
+      "initial_snapshot": {
+        "positions": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "triangles": [
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            0,
+            2,
+            3
+          ]
+        ],
+        "vertex_ids": [
+          17,
+          3,
+          44,
+          8
+        ],
+        "triangle_ids": [
+          51,
+          20
+        ],
+        "velocity": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "inverse_mass": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pinned": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "epoch": 1,
+        "step_index": 0,
+        "topology_version": 0,
+        "time": 0.0,
+        "dt": 0.001
+      },
+      "binding": {
+        "value": {
+          "expected_source": {
+            "kind": "real_backend",
+            "source_id": "mpm-couple.test",
+            "version": 2913825255
+          },
+          "n_triangles": 2,
+          "n_vertices": 4,
+          "snapshot_epoch": 1,
+          "stream_id": "u3-self-declared-fixture-fixed",
+          "topology_version": 0
+        },
+        "canonical_json": "{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-fixed\",\"topology_version\":0}",
+        "sha256": "40b82373046a9e4cf6f756b6fca280b3a0945f99d5bf0067402c731130acbd65"
+      },
+      "windows": [
+        {
+          "impulse_window": {
+            "schema": "xpbd-exchange-v1",
+            "window_index": 0,
+            "batch": {
+              "stream_id": "u3-self-declared-fixture-fixed",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "cloth_version": [
+                1,
+                0,
+                0
+              ],
+              "batch_id": "batch-0",
+              "t_start": 0.0,
+              "t_end": 0.001,
+              "vertex_ids": [
+                44,
+                17,
+                8,
+                3
+              ],
+              "impulse": [
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ]
+              ],
+              "coordinate_frame": "world",
+              "units": "SI"
+            }
+          },
+          "receipt": {
+            "value": {
+              "schema": "xpbd-registered-kinematic-v1",
+              "candidate_only": false,
+              "kinematic": true,
+              "free_dof_count": 0,
+              "motion": "fixed",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "source_authenticity": "unverified_real_backend_registration",
+              "authenticated": false,
+              "external_process_observed": false,
+              "external_files_verified": false,
+              "config_verified": false,
+              "registration_digest": "52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c",
+              "registration_binding": {
+                "expected_source": {
+                  "kind": "real_backend",
+                  "source_id": "mpm-couple.test",
+                  "version": 2913825255
+                },
+                "n_triangles": 2,
+                "n_vertices": 4,
+                "snapshot_epoch": 1,
+                "stream_id": "u3-self-declared-fixture-fixed",
+                "topology_version": 0
+              },
+              "mpm_run_id": "fixture-not-a-real-MPM-run",
+              "mpm_epoch": 1,
+              "code_digest": "adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44",
+              "config_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "stream_id": "u3-self-declared-fixture-fixed",
+              "batch_id": "batch-0",
+              "t_start": 0.0,
+              "t_end": 0.001,
+              "h": 0.001,
+              "previous_dt": 0.001,
+              "start_version": [
+                1,
+                0,
+                0
+              ],
+              "committed_version": [
+                1,
+                1,
+                0
+              ],
+              "vertex_ids": [
+                17,
+                3,
+                44,
+                8
+              ],
+              "impulse": [
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ],
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ]
+              ],
+              "load_received": true,
+              "load_applied_to_geometry": false,
+              "support_balance": null,
+              "reaction_measurement": "not_measured",
+              "drive_work": null,
+              "device_solve": false,
+              "real_coupling": false,
+              "window_index": 0
+            },
+            "canonical_json": "{\"authenticated\":false,\"batch_id\":\"batch-0\",\"candidate_only\":false,\"code_digest\":\"adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44\",\"committed_version\":[1,1,0],\"config_digest\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"config_verified\":false,\"device_solve\":false,\"drive_work\":null,\"external_files_verified\":false,\"external_process_observed\":false,\"free_dof_count\":0,\"h\":0.001,\"impulse\":[[0.0,0.01,0.02],[0.03,0.04,0.05],[0.06,0.07,0.08],[0.09,0.1,0.11]],\"kinematic\":true,\"load_applied_to_geometry\":false,\"load_received\":true,\"motion\":\"fixed\",\"mpm_epoch\":1,\"mpm_run_id\":\"fixture-not-a-real-MPM-run\",\"previous_dt\":0.001,\"reaction_measurement\":\"not_measured\",\"real_coupling\":false,\"registration_binding\":{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-fixed\",\"topology_version\":0},\"registration_digest\":\"52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c\",\"schema\":\"xpbd-registered-kinematic-v1\",\"source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"source_authenticity\":\"unverified_real_backend_registration\",\"start_version\":[1,0,0],\"stream_id\":\"u3-self-declared-fixture-fixed\",\"support_balance\":null,\"t_end\":0.001,\"t_start\":0.0,\"vertex_ids\":[17,3,44,8],\"window_index\":0}",
+            "sha256": "badb9d4345890bd73ce4f3ebc8f94563f4cb617297d74667862f78301090401d"
+          },
+          "committed_snapshot": {
+            "positions": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "triangles": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2,
+                3
+              ]
+            ],
+            "vertex_ids": [
+              17,
+              3,
+              44,
+              8
+            ],
+            "triangle_ids": [
+              51,
+              20
+            ],
+            "velocity": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "inverse_mass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pinned": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "epoch": 1,
+            "step_index": 1,
+            "topology_version": 0,
+            "time": 0.001,
+            "dt": 0.001
+          }
+        },
+        {
+          "impulse_window": {
+            "schema": "xpbd-exchange-v1",
+            "window_index": 1,
+            "batch": {
+              "stream_id": "u3-self-declared-fixture-fixed",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "cloth_version": [
+                1,
+                1,
+                0
+              ],
+              "batch_id": "batch-1",
+              "t_start": 0.001,
+              "t_end": 0.002,
+              "vertex_ids": [
+                44,
+                17,
+                8,
+                3
+              ],
+              "impulse": [
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ]
+              ],
+              "coordinate_frame": "world",
+              "units": "SI"
+            }
+          },
+          "receipt": {
+            "value": {
+              "schema": "xpbd-registered-kinematic-v1",
+              "candidate_only": false,
+              "kinematic": true,
+              "free_dof_count": 0,
+              "motion": "fixed",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "source_authenticity": "unverified_real_backend_registration",
+              "authenticated": false,
+              "external_process_observed": false,
+              "external_files_verified": false,
+              "config_verified": false,
+              "registration_digest": "52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c",
+              "registration_binding": {
+                "expected_source": {
+                  "kind": "real_backend",
+                  "source_id": "mpm-couple.test",
+                  "version": 2913825255
+                },
+                "n_triangles": 2,
+                "n_vertices": 4,
+                "snapshot_epoch": 1,
+                "stream_id": "u3-self-declared-fixture-fixed",
+                "topology_version": 0
+              },
+              "mpm_run_id": "fixture-not-a-real-MPM-run",
+              "mpm_epoch": 1,
+              "code_digest": "adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44",
+              "config_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "stream_id": "u3-self-declared-fixture-fixed",
+              "batch_id": "batch-1",
+              "t_start": 0.001,
+              "t_end": 0.002,
+              "h": 0.001,
+              "previous_dt": 0.001,
+              "start_version": [
+                1,
+                1,
+                0
+              ],
+              "committed_version": [
+                1,
+                2,
+                0
+              ],
+              "vertex_ids": [
+                17,
+                3,
+                44,
+                8
+              ],
+              "impulse": [
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ],
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ]
+              ],
+              "load_received": true,
+              "load_applied_to_geometry": false,
+              "support_balance": null,
+              "reaction_measurement": "not_measured",
+              "drive_work": null,
+              "device_solve": false,
+              "real_coupling": false,
+              "window_index": 1
+            },
+            "canonical_json": "{\"authenticated\":false,\"batch_id\":\"batch-1\",\"candidate_only\":false,\"code_digest\":\"adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44\",\"committed_version\":[1,2,0],\"config_digest\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"config_verified\":false,\"device_solve\":false,\"drive_work\":null,\"external_files_verified\":false,\"external_process_observed\":false,\"free_dof_count\":0,\"h\":0.001,\"impulse\":[[0.0,0.01,0.02],[0.03,0.04,0.05],[0.06,0.07,0.08],[0.09,0.1,0.11]],\"kinematic\":true,\"load_applied_to_geometry\":false,\"load_received\":true,\"motion\":\"fixed\",\"mpm_epoch\":1,\"mpm_run_id\":\"fixture-not-a-real-MPM-run\",\"previous_dt\":0.001,\"reaction_measurement\":\"not_measured\",\"real_coupling\":false,\"registration_binding\":{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-fixed\",\"topology_version\":0},\"registration_digest\":\"52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c\",\"schema\":\"xpbd-registered-kinematic-v1\",\"source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"source_authenticity\":\"unverified_real_backend_registration\",\"start_version\":[1,1,0],\"stream_id\":\"u3-self-declared-fixture-fixed\",\"support_balance\":null,\"t_end\":0.002,\"t_start\":0.001,\"vertex_ids\":[17,3,44,8],\"window_index\":1}",
+            "sha256": "35d67a22f4f0849efcbcea50bf67b01b9502de38cf6da86a544a9ab252a7fa97"
+          },
+          "committed_snapshot": {
+            "positions": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "triangles": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2,
+                3
+              ]
+            ],
+            "vertex_ids": [
+              17,
+              3,
+              44,
+              8
+            ],
+            "triangle_ids": [
+              51,
+              20
+            ],
+            "velocity": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "inverse_mass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pinned": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "epoch": 1,
+            "step_index": 2,
+            "topology_version": 0,
+            "time": 0.002,
+            "dt": 0.001
+          }
+        },
+        {
+          "impulse_window": {
+            "schema": "xpbd-exchange-v1",
+            "window_index": 2,
+            "batch": {
+              "stream_id": "u3-self-declared-fixture-fixed",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "cloth_version": [
+                1,
+                2,
+                0
+              ],
+              "batch_id": "batch-2",
+              "t_start": 0.002,
+              "t_end": 0.003,
+              "vertex_ids": [
+                44,
+                17,
+                8,
+                3
+              ],
+              "impulse": [
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ]
+              ],
+              "coordinate_frame": "world",
+              "units": "SI"
+            }
+          },
+          "receipt": {
+            "value": {
+              "schema": "xpbd-registered-kinematic-v1",
+              "candidate_only": false,
+              "kinematic": true,
+              "free_dof_count": 0,
+              "motion": "fixed",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "source_authenticity": "unverified_real_backend_registration",
+              "authenticated": false,
+              "external_process_observed": false,
+              "external_files_verified": false,
+              "config_verified": false,
+              "registration_digest": "52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c",
+              "registration_binding": {
+                "expected_source": {
+                  "kind": "real_backend",
+                  "source_id": "mpm-couple.test",
+                  "version": 2913825255
+                },
+                "n_triangles": 2,
+                "n_vertices": 4,
+                "snapshot_epoch": 1,
+                "stream_id": "u3-self-declared-fixture-fixed",
+                "topology_version": 0
+              },
+              "mpm_run_id": "fixture-not-a-real-MPM-run",
+              "mpm_epoch": 1,
+              "code_digest": "adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44",
+              "config_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "stream_id": "u3-self-declared-fixture-fixed",
+              "batch_id": "batch-2",
+              "t_start": 0.002,
+              "t_end": 0.003,
+              "h": 0.001,
+              "previous_dt": 0.001,
+              "start_version": [
+                1,
+                2,
+                0
+              ],
+              "committed_version": [
+                1,
+                3,
+                0
+              ],
+              "vertex_ids": [
+                17,
+                3,
+                44,
+                8
+              ],
+              "impulse": [
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ],
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ]
+              ],
+              "load_received": true,
+              "load_applied_to_geometry": false,
+              "support_balance": null,
+              "reaction_measurement": "not_measured",
+              "drive_work": null,
+              "device_solve": false,
+              "real_coupling": false,
+              "window_index": 2
+            },
+            "canonical_json": "{\"authenticated\":false,\"batch_id\":\"batch-2\",\"candidate_only\":false,\"code_digest\":\"adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44\",\"committed_version\":[1,3,0],\"config_digest\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"config_verified\":false,\"device_solve\":false,\"drive_work\":null,\"external_files_verified\":false,\"external_process_observed\":false,\"free_dof_count\":0,\"h\":0.001,\"impulse\":[[0.0,0.01,0.02],[0.03,0.04,0.05],[0.06,0.07,0.08],[0.09,0.1,0.11]],\"kinematic\":true,\"load_applied_to_geometry\":false,\"load_received\":true,\"motion\":\"fixed\",\"mpm_epoch\":1,\"mpm_run_id\":\"fixture-not-a-real-MPM-run\",\"previous_dt\":0.001,\"reaction_measurement\":\"not_measured\",\"real_coupling\":false,\"registration_binding\":{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-fixed\",\"topology_version\":0},\"registration_digest\":\"52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c\",\"schema\":\"xpbd-registered-kinematic-v1\",\"source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"source_authenticity\":\"unverified_real_backend_registration\",\"start_version\":[1,2,0],\"stream_id\":\"u3-self-declared-fixture-fixed\",\"support_balance\":null,\"t_end\":0.003,\"t_start\":0.002,\"vertex_ids\":[17,3,44,8],\"window_index\":2}",
+            "sha256": "9dcef0757a74492920cb4e7040ad12847850bdd59ee0a625d8e7e65de93bf707"
+          },
+          "committed_snapshot": {
+            "positions": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "triangles": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2,
+                3
+              ]
+            ],
+            "vertex_ids": [
+              17,
+              3,
+              44,
+              8
+            ],
+            "triangle_ids": [
+              51,
+              20
+            ],
+            "velocity": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "inverse_mass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pinned": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "epoch": 1,
+            "step_index": 3,
+            "topology_version": 0,
+            "time": 0.003,
+            "dt": 0.001
+          }
+        }
+      ]
+    },
+    {
+      "name": "translation",
+      "stream_id": "u3-self-declared-fixture-translation",
+      "initial_snapshot": {
+        "positions": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "triangles": [
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            0,
+            2,
+            3
+          ]
+        ],
+        "vertex_ids": [
+          17,
+          3,
+          44,
+          8
+        ],
+        "triangle_ids": [
+          51,
+          20
+        ],
+        "velocity": [
+          [
+            0.2,
+            -0.3,
+            0.5
+          ],
+          [
+            0.2,
+            -0.3,
+            0.5
+          ],
+          [
+            0.2,
+            -0.3,
+            0.5
+          ],
+          [
+            0.2,
+            -0.3,
+            0.5
+          ]
+        ],
+        "inverse_mass": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pinned": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "epoch": 1,
+        "step_index": 0,
+        "topology_version": 0,
+        "time": 0.0,
+        "dt": 0.001
+      },
+      "binding": {
+        "value": {
+          "expected_source": {
+            "kind": "real_backend",
+            "source_id": "mpm-couple.test",
+            "version": 2913825255
+          },
+          "n_triangles": 2,
+          "n_vertices": 4,
+          "snapshot_epoch": 1,
+          "stream_id": "u3-self-declared-fixture-translation",
+          "topology_version": 0
+        },
+        "canonical_json": "{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-translation\",\"topology_version\":0}",
+        "sha256": "1fa82d930dd4de0756204d7e5eb97b240c5bef77b37e1f1186e85d8ea1d34366"
+      },
+      "windows": [
+        {
+          "impulse_window": {
+            "schema": "xpbd-exchange-v1",
+            "window_index": 0,
+            "batch": {
+              "stream_id": "u3-self-declared-fixture-translation",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "cloth_version": [
+                1,
+                0,
+                0
+              ],
+              "batch_id": "batch-0",
+              "t_start": 0.0,
+              "t_end": 0.001,
+              "vertex_ids": [
+                44,
+                17,
+                8,
+                3
+              ],
+              "impulse": [
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ]
+              ],
+              "coordinate_frame": "world",
+              "units": "SI"
+            }
+          },
+          "receipt": {
+            "value": {
+              "schema": "xpbd-registered-kinematic-v1",
+              "candidate_only": false,
+              "kinematic": true,
+              "free_dof_count": 0,
+              "motion": "uniform_constant_translation",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "source_authenticity": "unverified_real_backend_registration",
+              "authenticated": false,
+              "external_process_observed": false,
+              "external_files_verified": false,
+              "config_verified": false,
+              "registration_digest": "52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c",
+              "registration_binding": {
+                "expected_source": {
+                  "kind": "real_backend",
+                  "source_id": "mpm-couple.test",
+                  "version": 2913825255
+                },
+                "n_triangles": 2,
+                "n_vertices": 4,
+                "snapshot_epoch": 1,
+                "stream_id": "u3-self-declared-fixture-translation",
+                "topology_version": 0
+              },
+              "mpm_run_id": "fixture-not-a-real-MPM-run",
+              "mpm_epoch": 1,
+              "code_digest": "adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44",
+              "config_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "stream_id": "u3-self-declared-fixture-translation",
+              "batch_id": "batch-0",
+              "t_start": 0.0,
+              "t_end": 0.001,
+              "h": 0.001,
+              "previous_dt": 0.001,
+              "start_version": [
+                1,
+                0,
+                0
+              ],
+              "committed_version": [
+                1,
+                1,
+                0
+              ],
+              "vertex_ids": [
+                17,
+                3,
+                44,
+                8
+              ],
+              "impulse": [
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ],
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ]
+              ],
+              "load_received": true,
+              "load_applied_to_geometry": false,
+              "support_balance": null,
+              "reaction_measurement": "not_measured",
+              "drive_work": null,
+              "device_solve": false,
+              "real_coupling": false,
+              "window_index": 0
+            },
+            "canonical_json": "{\"authenticated\":false,\"batch_id\":\"batch-0\",\"candidate_only\":false,\"code_digest\":\"adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44\",\"committed_version\":[1,1,0],\"config_digest\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"config_verified\":false,\"device_solve\":false,\"drive_work\":null,\"external_files_verified\":false,\"external_process_observed\":false,\"free_dof_count\":0,\"h\":0.001,\"impulse\":[[0.0,0.01,0.02],[0.03,0.04,0.05],[0.06,0.07,0.08],[0.09,0.1,0.11]],\"kinematic\":true,\"load_applied_to_geometry\":false,\"load_received\":true,\"motion\":\"uniform_constant_translation\",\"mpm_epoch\":1,\"mpm_run_id\":\"fixture-not-a-real-MPM-run\",\"previous_dt\":0.001,\"reaction_measurement\":\"not_measured\",\"real_coupling\":false,\"registration_binding\":{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-translation\",\"topology_version\":0},\"registration_digest\":\"52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c\",\"schema\":\"xpbd-registered-kinematic-v1\",\"source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"source_authenticity\":\"unverified_real_backend_registration\",\"start_version\":[1,0,0],\"stream_id\":\"u3-self-declared-fixture-translation\",\"support_balance\":null,\"t_end\":0.001,\"t_start\":0.0,\"vertex_ids\":[17,3,44,8],\"window_index\":0}",
+            "sha256": "b090b33b7e85bd8ec948e88743cc28f4ad70b5337719a8e7f5a55a6a2890194f"
+          },
+          "committed_snapshot": {
+            "positions": [
+              [
+                0.0002,
+                -0.0003,
+                0.0005
+              ],
+              [
+                1.0002,
+                -0.0003,
+                0.0005
+              ],
+              [
+                1.0002,
+                0.9997,
+                0.0005
+              ],
+              [
+                0.0002,
+                0.9997,
+                0.0005
+              ]
+            ],
+            "triangles": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2,
+                3
+              ]
+            ],
+            "vertex_ids": [
+              17,
+              3,
+              44,
+              8
+            ],
+            "triangle_ids": [
+              51,
+              20
+            ],
+            "velocity": [
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ]
+            ],
+            "inverse_mass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pinned": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "epoch": 1,
+            "step_index": 1,
+            "topology_version": 0,
+            "time": 0.001,
+            "dt": 0.001
+          }
+        },
+        {
+          "impulse_window": {
+            "schema": "xpbd-exchange-v1",
+            "window_index": 1,
+            "batch": {
+              "stream_id": "u3-self-declared-fixture-translation",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "cloth_version": [
+                1,
+                1,
+                0
+              ],
+              "batch_id": "batch-1",
+              "t_start": 0.001,
+              "t_end": 0.002,
+              "vertex_ids": [
+                44,
+                17,
+                8,
+                3
+              ],
+              "impulse": [
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ]
+              ],
+              "coordinate_frame": "world",
+              "units": "SI"
+            }
+          },
+          "receipt": {
+            "value": {
+              "schema": "xpbd-registered-kinematic-v1",
+              "candidate_only": false,
+              "kinematic": true,
+              "free_dof_count": 0,
+              "motion": "uniform_constant_translation",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "source_authenticity": "unverified_real_backend_registration",
+              "authenticated": false,
+              "external_process_observed": false,
+              "external_files_verified": false,
+              "config_verified": false,
+              "registration_digest": "52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c",
+              "registration_binding": {
+                "expected_source": {
+                  "kind": "real_backend",
+                  "source_id": "mpm-couple.test",
+                  "version": 2913825255
+                },
+                "n_triangles": 2,
+                "n_vertices": 4,
+                "snapshot_epoch": 1,
+                "stream_id": "u3-self-declared-fixture-translation",
+                "topology_version": 0
+              },
+              "mpm_run_id": "fixture-not-a-real-MPM-run",
+              "mpm_epoch": 1,
+              "code_digest": "adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44",
+              "config_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "stream_id": "u3-self-declared-fixture-translation",
+              "batch_id": "batch-1",
+              "t_start": 0.001,
+              "t_end": 0.002,
+              "h": 0.001,
+              "previous_dt": 0.001,
+              "start_version": [
+                1,
+                1,
+                0
+              ],
+              "committed_version": [
+                1,
+                2,
+                0
+              ],
+              "vertex_ids": [
+                17,
+                3,
+                44,
+                8
+              ],
+              "impulse": [
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ],
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ]
+              ],
+              "load_received": true,
+              "load_applied_to_geometry": false,
+              "support_balance": null,
+              "reaction_measurement": "not_measured",
+              "drive_work": null,
+              "device_solve": false,
+              "real_coupling": false,
+              "window_index": 1
+            },
+            "canonical_json": "{\"authenticated\":false,\"batch_id\":\"batch-1\",\"candidate_only\":false,\"code_digest\":\"adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44\",\"committed_version\":[1,2,0],\"config_digest\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"config_verified\":false,\"device_solve\":false,\"drive_work\":null,\"external_files_verified\":false,\"external_process_observed\":false,\"free_dof_count\":0,\"h\":0.001,\"impulse\":[[0.0,0.01,0.02],[0.03,0.04,0.05],[0.06,0.07,0.08],[0.09,0.1,0.11]],\"kinematic\":true,\"load_applied_to_geometry\":false,\"load_received\":true,\"motion\":\"uniform_constant_translation\",\"mpm_epoch\":1,\"mpm_run_id\":\"fixture-not-a-real-MPM-run\",\"previous_dt\":0.001,\"reaction_measurement\":\"not_measured\",\"real_coupling\":false,\"registration_binding\":{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-translation\",\"topology_version\":0},\"registration_digest\":\"52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c\",\"schema\":\"xpbd-registered-kinematic-v1\",\"source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"source_authenticity\":\"unverified_real_backend_registration\",\"start_version\":[1,1,0],\"stream_id\":\"u3-self-declared-fixture-translation\",\"support_balance\":null,\"t_end\":0.002,\"t_start\":0.001,\"vertex_ids\":[17,3,44,8],\"window_index\":1}",
+            "sha256": "3c6577054b86fb4ea270791dc6ea0492b6007fadc47cf396c371071f387a46c2"
+          },
+          "committed_snapshot": {
+            "positions": [
+              [
+                0.0004,
+                -0.0006,
+                0.001
+              ],
+              [
+                1.0004,
+                -0.0006,
+                0.001
+              ],
+              [
+                1.0004,
+                0.9994000000000001,
+                0.001
+              ],
+              [
+                0.0004,
+                0.9994000000000001,
+                0.001
+              ]
+            ],
+            "triangles": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2,
+                3
+              ]
+            ],
+            "vertex_ids": [
+              17,
+              3,
+              44,
+              8
+            ],
+            "triangle_ids": [
+              51,
+              20
+            ],
+            "velocity": [
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ]
+            ],
+            "inverse_mass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pinned": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "epoch": 1,
+            "step_index": 2,
+            "topology_version": 0,
+            "time": 0.002,
+            "dt": 0.001
+          }
+        },
+        {
+          "impulse_window": {
+            "schema": "xpbd-exchange-v1",
+            "window_index": 2,
+            "batch": {
+              "stream_id": "u3-self-declared-fixture-translation",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "cloth_version": [
+                1,
+                2,
+                0
+              ],
+              "batch_id": "batch-2",
+              "t_start": 0.002,
+              "t_end": 0.003,
+              "vertex_ids": [
+                44,
+                17,
+                8,
+                3
+              ],
+              "impulse": [
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ]
+              ],
+              "coordinate_frame": "world",
+              "units": "SI"
+            }
+          },
+          "receipt": {
+            "value": {
+              "schema": "xpbd-registered-kinematic-v1",
+              "candidate_only": false,
+              "kinematic": true,
+              "free_dof_count": 0,
+              "motion": "uniform_constant_translation",
+              "source": {
+                "source_id": "mpm-couple.test",
+                "kind": "real_backend",
+                "version": 2913825255
+              },
+              "source_authenticity": "unverified_real_backend_registration",
+              "authenticated": false,
+              "external_process_observed": false,
+              "external_files_verified": false,
+              "config_verified": false,
+              "registration_digest": "52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c",
+              "registration_binding": {
+                "expected_source": {
+                  "kind": "real_backend",
+                  "source_id": "mpm-couple.test",
+                  "version": 2913825255
+                },
+                "n_triangles": 2,
+                "n_vertices": 4,
+                "snapshot_epoch": 1,
+                "stream_id": "u3-self-declared-fixture-translation",
+                "topology_version": 0
+              },
+              "mpm_run_id": "fixture-not-a-real-MPM-run",
+              "mpm_epoch": 1,
+              "code_digest": "adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44",
+              "config_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "stream_id": "u3-self-declared-fixture-translation",
+              "batch_id": "batch-2",
+              "t_start": 0.002,
+              "t_end": 0.003,
+              "h": 0.001,
+              "previous_dt": 0.001,
+              "start_version": [
+                1,
+                2,
+                0
+              ],
+              "committed_version": [
+                1,
+                3,
+                0
+              ],
+              "vertex_ids": [
+                17,
+                3,
+                44,
+                8
+              ],
+              "impulse": [
+                [
+                  0.0,
+                  0.01,
+                  0.02
+                ],
+                [
+                  0.03,
+                  0.04,
+                  0.05
+                ],
+                [
+                  0.06,
+                  0.07,
+                  0.08
+                ],
+                [
+                  0.09,
+                  0.1,
+                  0.11
+                ]
+              ],
+              "load_received": true,
+              "load_applied_to_geometry": false,
+              "support_balance": null,
+              "reaction_measurement": "not_measured",
+              "drive_work": null,
+              "device_solve": false,
+              "real_coupling": false,
+              "window_index": 2
+            },
+            "canonical_json": "{\"authenticated\":false,\"batch_id\":\"batch-2\",\"candidate_only\":false,\"code_digest\":\"adad71e79db5ab8c0f80afb01638d3181d7c11fc701bd851650a0bbe3924af44\",\"committed_version\":[1,3,0],\"config_digest\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"config_verified\":false,\"device_solve\":false,\"drive_work\":null,\"external_files_verified\":false,\"external_process_observed\":false,\"free_dof_count\":0,\"h\":0.001,\"impulse\":[[0.0,0.01,0.02],[0.03,0.04,0.05],[0.06,0.07,0.08],[0.09,0.1,0.11]],\"kinematic\":true,\"load_applied_to_geometry\":false,\"load_received\":true,\"motion\":\"uniform_constant_translation\",\"mpm_epoch\":1,\"mpm_run_id\":\"fixture-not-a-real-MPM-run\",\"previous_dt\":0.001,\"reaction_measurement\":\"not_measured\",\"real_coupling\":false,\"registration_binding\":{\"expected_source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"n_triangles\":2,\"n_vertices\":4,\"snapshot_epoch\":1,\"stream_id\":\"u3-self-declared-fixture-translation\",\"topology_version\":0},\"registration_digest\":\"52538cd5d3d59ee0841070e40b51d29d59ccd61886a9f4f567a445022e0d094c\",\"schema\":\"xpbd-registered-kinematic-v1\",\"source\":{\"kind\":\"real_backend\",\"source_id\":\"mpm-couple.test\",\"version\":2913825255},\"source_authenticity\":\"unverified_real_backend_registration\",\"start_version\":[1,2,0],\"stream_id\":\"u3-self-declared-fixture-translation\",\"support_balance\":null,\"t_end\":0.003,\"t_start\":0.002,\"vertex_ids\":[17,3,44,8],\"window_index\":2}",
+            "sha256": "0d597d09dfa166ac0451ac626c1d6d3c4c685b83e676183fbbdbbc9bf16eb19b"
+          },
+          "committed_snapshot": {
+            "positions": [
+              [
+                0.0006000000000000001,
+                -0.0009,
+                0.0015
+              ],
+              [
+                1.0006,
+                -0.0009,
+                0.0015
+              ],
+              [
+                1.0006,
+                0.9991000000000001,
+                0.0015
+              ],
+              [
+                0.0006000000000000001,
+                0.9991000000000001,
+                0.0015
+              ]
+            ],
+            "triangles": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2,
+                3
+              ]
+            ],
+            "vertex_ids": [
+              17,
+              3,
+              44,
+              8
+            ],
+            "triangle_ids": [
+              51,
+              20
+            ],
+            "velocity": [
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ],
+              [
+                0.2,
+                -0.3,
+                0.5
+              ]
+            ],
+            "inverse_mass": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pinned": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "epoch": 1,
+            "step_index": 3,
+            "topology_version": 0,
+            "time": 0.003,
+            "dt": 0.001
+          }
+        }
+      ]
+    }
+  ],
+  "scalar_vectors": [
+    {
+      "value": {
+        "z": -0.0,
+        "a": 0.0,
+        "int": 0,
+        "float": 1.0,
+        "unicode": "\u00e9"
+      },
+      "canonical_json": "{\"a\":0.0,\"float\":1.0,\"int\":0,\"unicode\":\"\\u00e9\",\"z\":-0.0}",
+      "sha256": "c2f394bba46781c7ea260c92164e782daf81ecdfa210af555d2e6d69c482124b"
+    }
+  ],
+  "source_sha256": {
+    "tools/export_u3_contract_vectors.py": "94f9eb1010087a050b99a6a49e324a2fc013e133562963901c7bfaffe565cea3",
+    "project/tests/test_registered_kinematic.py": "73aed4c9464ccc2864a2e9d7dc441a4798381791e1521019aafdf13164435cf4",
+    "project/tests/test_kinematic_surface.py": "2f1a1632fb789c11b404b2d719211f213a621a4ec8387a72b0467e26d2e7790c",
+    "project/coupling/registered_kinematic.py": "9a64547ac25270945db588bfb25b2415dd8989d50726ca86fcbd2f10ada7b8ac",
+    "project/coupling/contracts.py": "02af24df3b377285c962f242082d102e32eb3e97e84e36f58f13d520fe122a95",
+    "project/coupling/exchange.py": "da93067bb5d193ffae418d04f6f88c628e4985847483b2f18fdef4d709531807",
+    "project/coupling/loads.py": "6998dbd955768ed1c72d452d0c0be338c582060d0d845bb4a41b7c333acfa019"
+  },
+  "python": "3.10.21 | packaged by conda-forge | (main, Aug 21 2026, 22:38:44) [MSC v.1944 64 bit (AMD64)]",
+  "numpy": "1.26.4"
+}
